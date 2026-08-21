@@ -1,5 +1,9 @@
 # IoT Water Quality Prediction for Sustainable Aquaculture Using AI
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://gaganmn.streamlit.app)
+
+🚀 **Live Deployed Web Application**: [gaganmn.streamlit.app](https://gaganmn.streamlit.app)
+
 This repository contains a fully runnable academic major project simulating an IoT-enabled aquaculture monitoring system. It uses simulated water sensors (Temperature, pH, Dissolved Oxygen, Turbidity, Conductivity, Ammonia) combined with a Machine Learning classifier to predict water quality health status (Optimal, Warning, Critical) and recommend corrective farming interventions.
 
 ---
