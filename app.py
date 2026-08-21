@@ -40,25 +40,54 @@ model, scaler = load_ml_components()
 def get_recommendations(temp, ph, do, turbidity, conductivity, ammonia, status_code):
     recs = []
     if status_code == 0:
-        return ["🟢 Water parameters are in the optimal zone. Maintain current management practices."]
+        return ["🟢 **Status: Optimal.** Water parameters are within the safe biological range for aquaculture. Continue standard feeding and monitoring practices."]
         
     if do < 5.0:
-        recs.append("⚠️ **Low Dissolved Oxygen:** Aerate the pond immediately using paddlewheels, diffusers, or aspirators. Temporarily halt feeding since digestion increases oxygen demand.")
+        recs.append("🚨 **Low Dissolved Oxygen (DO < 5.0 mg/L):**\n"
+                    "- **Emergency Action:** Turn on all aerators (paddlewheels, bubble diffusers) immediately.\n"
+                    "- **Feed Control:** Halt feeding. Digestion increases biological oxygen demand (BOD) and fish metabolism, which can lead to mass suffocation.\n"
+                    "- **Water Exchange:** Flush the surface water and pump in fresh oxygenated groundwater if available.")
+                    
     if ph < 6.5:
-        recs.append("⚠️ **Acidic pH:** Apply agricultural lime (calcium carbonate) or dolomite to raise the pH and buffering capacity.")
+        recs.append("⚠️ **Acidic Water (pH < 6.5):**\n"
+                    "- **Treatment:** Apply agricultural limestone (calcium carbonate, $CaCO_3$) or dolomite ($CaMg(CO_3)_2$) at a rate of 50-100 kg per acre to increase alkalinity.\n"
+                    "- **Quick Fix:** In case of emergency drops (pH < 5.5), apply small, controlled amounts of sodium bicarbonate ($NaHCO_3$) for fast buffering.")
+                    
     if ph > 8.5:
-        recs.append("⚠️ **Alkaline pH:** Execute a partial water exchange. You can apply agricultural gypsum or introduce organic carbon sources (like molasses) to promote natural acidification.")
+        recs.append("⚠️ **Alkaline Water (pH > 8.5):**\n"
+                    "- **Risk:** High pH accelerates the conversion of ammonium ($NH_4^+$) into highly toxic gas ammonia ($NH_3$).\n"
+                    "- **Treatment:** Conduct a 15-20% water exchange. Apply agricultural gypsum (calcium sulfate, $CaSO_4$) at 100-200 kg per acre to lower pH.\n"
+                    "- **Organic Buffer:** Apply molasses (5-10 kg per acre) to stimulate heterotrophic bacteria, which release carbon dioxide ($CO_2$) to naturally buffer high pH.")
+                    
     if ammonia > 0.03:
-        recs.append("🚨 **Toxic Ammonia:** Immediately reduce or suspend feeding. Conduct a 20-30% water exchange. Increase aeration, as ammonia toxicity decreases if oxygen is high.")
+        recs.append("🚨 **Toxic Ammonia (Ammonia > 0.03 mg/L):**\n"
+                    "- **Urgent Action:** Stop feeding immediately to block further nitrogen load from feces and uneaten food.\n"
+                    "- **Adsorption:** Apply zeolite powder (15-20 kg per acre) to bind and adsorb ammonium ions from the water column.\n"
+                    "- **Bioremediation:** Introduce molasses/sugar (C:N ratio optimizer) to promote heterotrophic bacteria that rapidly consume inorganic nitrogen. Perform a 30% water exchange.")
+                    
     if temp > 33.0:
-        recs.append("⚠️ **High Temperature:** Oxygen solubility drops at higher temperatures. Increase water depth (deeper water stays cooler) or create shade.")
+        recs.append("⚠️ **Elevated Temperature (Temp > 33.0°C):**\n"
+                    "- **Impact:** Warmer water has lower oxygen holding capacity and increases fish respiration.\n"
+                    "- **Mitigation:** Increase water depth (cooler water buffers at the bottom), install shade nets over shallow ponds, and run aerators continuously to promote evaporative cooling.")
     elif temp < 20.0:
-        recs.append("⚠️ **Low Temperature:** Feed intake of fish/shrimp drops. Reduce feed rates to avoid feed decomposition and water pollution.")
+        recs.append("⚠️ **Low Temperature (Temp < 20.0°C):**\n"
+                    "- **Impact:** Fish metabolism slows down. Feed conversion ratio (FCR) drops significantly.\n"
+                    "- **Action:** Reduce daily feed allocation by 50% to prevent feed decay and toxic organic buildup on the pond floor.")
+                    
     if turbidity > 50.0:
-        recs.append("⚠️ **High Turbidity:** Indicates heavy suspended solids or excessive algal bloom. Check for soil run-off or siltation. Consider adding alum or gypsum if clay-induced.")
+        recs.append("⚠️ **High Turbidity (Turbidity > 50.0 NTU):**\n"
+                    "- **If Clay-Induced (Muddy):** Apply agricultural gypsum ($CaSO_4$) at 100 kg/acre or Alum (aluminum sulfate) at 10-15 kg/acre to clump and settle suspended clay particles.\n"
+                    "- **If Algae-Induced (Green bloom):** Reduce fertilizing, stop feeding for 24 hours, increase water exchanges, and run paddlewheel aerators to prevent nighttime oxygen crashes.")
+                    
+    if conductivity > 2500.0:
+        recs.append("⚠️ **High Salinity/Conductivity (> 2500 uS/cm):**\n"
+                    "- **Action:** Dilute pond salinity by pumping in fresh groundwater. Inspect filtration/evaporation rates.")
+    elif conductivity < 300.0:
+        recs.append("⚠️ **Low Conductivity/Minerals (< 300 uS/cm):**\n"
+                    "- **Action:** Minerals are too low, which causes osmotic stress in fish. Apply common salt (NaCl) or calcium chloride ($CaCl_2$) to replenish minerals and aid fish osmoregulation.")
         
     if not recs:
-        recs.append("⚠️ General water parameters are showing minor deviations. Inspect the pond filtration and drainage systems.")
+        recs.append("⚠️ **General Parameter Instability:** Minor parameters are fluctuating. Inspect pond inlets, drainage valves, and filter beds.")
     return recs
 
 # Sidebar navigation & configuration
