@@ -92,6 +92,21 @@ if model is None or scaler is None:
 else:
     st.sidebar.success("🤖 AI Model Connected")
 
+# Aquaculture Guide Expander
+st.sidebar.markdown("---")
+with st.sidebar.expander("📚 Fish Health Standard Guide"):
+    st.markdown("""
+    **Optimal Ranges for Fish Health:**
+    * **Temperature:** 24.0 - 30.0 °C
+    * **pH Level:** 6.8 - 8.2
+    * **Dissolved Oxygen:** > 5.5 mg/L
+    * **Turbidity:** < 30.0 NTU
+    * **Conductivity:** 500 - 1500 µS/cm
+    * **Ammonia:** < 0.02 mg/L
+    
+    *Values outside these bounds cause biological stress, reduced feeding, or mortality.*
+    """)
+
 # --- MODE 1: LIVE IoT FEED ---
 if mode == "Live IoT Telemetry Feed":
     st.subheader("📊 Real-Time IoT Pond Telemetry")
