@@ -169,5 +169,34 @@ void loop() {
   // Toggle the display page state for the next run
   displayPageOne = !displayPageOne;
   
-  delay(2000); // 2-second update interval
+  // Local Water Classification logic for physical buzzer
+  int status = 0; // 0: Optimal, 1: Warning, 2: Critical
+  if (dissolvedOxygen < 3.0 || ph < 5.5 || ph > 9.5 || temp < 15.0 || temp > 36.0) {
+    status = 2; // Critical
+  } else if (dissolvedOxygen < 5.0 || ph < 6.5 || ph > 8.5 || temp < 20.0 || temp > 33.0 || turbidity > 50.0 || conductivity > 2500.0 || conductivity < 300.0) {
+    status = 1; // Warning
+  }
+
+  // Control Buzzer Alarm (Beeps for 5 seconds total)
+  if (status == 2) {
+    // Critical: Rapid beeps (10 cycles of 250ms ON, 250ms OFF = 5000ms)
+    for (int i = 0; i < 10; i++) {
+      digitalWrite(BUZZER_PIN, HIGH);
+      delay(250);
+      digitalWrite(BUZZER_PIN, LOW);
+      delay(250);
+    }
+  } else if (status == 1) {
+    // Warning: Slow pulse beeps (5 cycles of 500ms ON, 500ms OFF = 5000ms)
+    for (int i = 0; i < 5; i++) {
+      digitalWrite(BUZZER_PIN, HIGH);
+      delay(500);
+      digitalWrite(BUZZER_PIN, LOW);
+      delay(500);
+    }
+  } else {
+    // Silent for Optimal Zone (5 seconds delay)
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(5000);
+  }
 }
