@@ -147,8 +147,12 @@ mode = st.sidebar.radio("Select Mode", ["Live IoT Telemetry Feed", "Manual Predi
 st.sidebar.markdown("---")
 st.sidebar.header("☁️ Cloud Database Settings")
 
-# Check secrets first
-default_fb_url = st.secrets.get("FIREBASE_URL", "https://aquacultureiot-17060-default-rtdb.asia-southeast1.firebasedatabase.app/")
+# Check secrets safely (fails on local run without secrets file)
+try:
+    default_fb_url = st.secrets.get("FIREBASE_URL", "https://aquacultureiot-17060-default-rtdb.asia-southeast1.firebasedatabase.app/")
+except Exception:
+    default_fb_url = "https://aquacultureiot-17060-default-rtdb.asia-southeast1.firebasedatabase.app/"
+
 firebase_url = st.sidebar.text_input("Firebase Realtime DB URL:", value=default_fb_url, 
                                      placeholder="https://your-project-default-rtdb.firebaseio.com/")
 
