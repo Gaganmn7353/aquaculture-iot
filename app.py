@@ -90,6 +90,54 @@ def get_recommendations(temp, ph, do, turbidity, conductivity, ammonia, status_c
         recs.append("⚠️ **General Parameter Instability:** Minor parameters are fluctuating. Inspect pond inlets, drainage valves, and filter beds.")
     return recs
 
+# Helper to trigger browser beep sound using Web Audio API
+def trigger_acoustic_alarm(status_code):
+    if status_code > 0:
+        # 880 Hz (A5 pitch) for Critical, 440 Hz (A4 pitch) for Warning
+        frequency = 880 if status_code == 2 else 440
+        beep_type = "sawtooth" if status_code == 2 else "sine"
+        
+        beep_js = f"""
+        <script>
+        (function() {{
+            try {{
+                var AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                var context = new AudioContext();
+                
+                // Play sound pattern
+                var osc = context.createOscillator();
+                var gain = context.createGain();
+                
+                osc.type = "{beep_type}";
+                osc.frequency.setValueAtTime({frequency}, context.currentTime);
+                
+                osc.connect(gain);
+                gain.connect(context.destination);
+                osc.start();
+                
+                if ({status_code} === 2) {{
+                    // Critical: Rapid double beep (Buzzer sound)
+                    gain.gain.setValueAtTime(0.3, context.currentTime);
+                    gain.gain.setValueAtTime(0.01, context.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.3, context.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.01, context.currentTime + 0.40);
+                    setTimeout(function() {{ osc.stop(); context.close(); }}, 500);
+                }} else {{
+                    // Warning: Slow single beep
+                    gain.gain.setValueAtTime(0.2, context.currentTime);
+                    gain.gain.setValueAtTime(0.01, context.currentTime + 0.30);
+                    setTimeout(function() {{ osc.stop(); context.close(); }}, 400);
+                }}
+            }} catch(e) {{
+                console.log("Audio play blocked or unsupported by browser: ", e);
+            }}
+        }})();
+        </script>
+        """
+        # Inject the invisible iframe to run the JavaScript code
+        st.components.v1.html(beep_js, height=0, width=0)
+
 # Sidebar navigation & configuration
 st.sidebar.image("https://img.icons8.com/color/150/000000/fish.png", width=100)
 st.sidebar.header("Navigation Panel")
@@ -206,6 +254,9 @@ if mode == "Live IoT Telemetry Feed":
         pred_status = model.predict(input_scaled)[0]
         pred_probs = model.predict_proba(input_scaled)[0]
         
+        # Trigger browser acoustic alarm
+        trigger_acoustic_alarm(pred_status)
+        
         # Display Current status banner
         if pred_status == 0:
             st.success("### 🟢 Water Quality Status: OPTIMAL (Safe for Aquaculture)")
@@ -299,6 +350,9 @@ else:
     sim_scaled = scaler.transform(sim_data)
     sim_pred = model.predict(sim_scaled)[0]
     sim_probs = model.predict_proba(sim_scaled)[0]
+    
+    # Trigger browser acoustic alarm
+    trigger_acoustic_alarm(sim_pred)
     
     col_r1, col_r2 = st.columns([1, 1])
     
