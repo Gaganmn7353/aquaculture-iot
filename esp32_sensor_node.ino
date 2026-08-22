@@ -67,9 +67,16 @@ void setup() {
 }
 
 // Helper to convert ADC value to voltage
+// Helper to read raw values and remove noise using a 10-sample moving average filter
 float readVoltage(int pin) {
-  int raw = analogRead(pin);
-  return (raw / ADC_RESOLUTION) * ADC_REF;
+  long sum = 0;
+  int samples = 10;
+  for (int i = 0; i < samples; i++) {
+    sum += analogRead(pin);
+    delay(10); // 10ms buffer to allow ADC voltage to stabilize
+  }
+  float averageRaw = sum / (float)samples;
+  return (averageRaw / ADC_RESOLUTION) * ADC_REF;
 }
 
 // Convert pH sensor voltage to pH value (standard slope calibration)
